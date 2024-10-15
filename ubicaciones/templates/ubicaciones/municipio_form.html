@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selecciona Estado y Municipio</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Selecciona un Estado y Municipio</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        <label for="id_estado">Estado:</label>
+        <select id="id_estado" name="estado">
+            <option value="">Selecciona un estado</option>
+            {% for estado in estados %}
+                <option value="{{ estado.id }}">{{ estado.nombre }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="id_municipio">Municipio:</label>
+        <select id="id_municipio" name="municipio">
+            <option value="">Selecciona un municipio</option>
+        </select>
+    </form>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#id_estado").change(function() {
+                var estadoId = $(this).val();
+                if (estadoId) {
+                    $.ajax({
+                        url: "{% url 'get_municipios' %}",
+                        data: {'estado_id': estadoId},
+                        success: function(data) {
+                            $("#id_municipio").html('');
+                            if (data.length > 0) {
+                                $.each(data, function(index, municipio) {
+                                    $("#id_municipio").append('<option value="' + municipio.id + '">' + municipio.nombre + '</option>');
+                                });
+                            } else {
+                                $("#id_municipio").append('<option value="">No hay municipios disponibles</option>');
+                            }
+                        }
+                    });
+                } else {
+                    $("#id_municipio").html('<option value="">Selecciona un municipio</option>');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
